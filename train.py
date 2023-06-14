@@ -13,18 +13,29 @@ from avalanche.evaluation.metrics import (
     confusion_matrix_metrics
 )
 from avalanche.training.plugins import EvaluationPlugin, ReplayPlugin, EWCPlugin
-from avalanche.training.templates import SupervisedTemplate
 from avalanche.logging import InteractiveLogger, TextLogger
 
 # Project Imports
-from utils import *
+from utils import get_datasets
+from strategies import HFSupervised
 
 
 
 def train():
+    '''
+    Description:
+        Main function to train the classification model.
+        Invokes necessarily loaders and sets up the CL
+        environment.
+    
+    Args:
+        None
+
+    Returns:
+        None
+    '''
     # TODO: Add support for other backbone models for 
     #       comparison (get_model function)
-    
     # Total of 17 2D Wallpaper groups
     labels = [
         'CM', 'CMM', 'P1', 'P2', 'P3', 'P3M1', 'P4', 'P4G',
@@ -38,7 +49,7 @@ def train():
         num_labels=num_classes,
         id2label = {str(i): c for i,c in enumerate(labels)},
         label2id = {c: str(i) for i,c in enumerate(labels)},
-        ignore_mismatched_sizes=True
+        ignore_mismatched_sizes=True,
     )
 
     # Move model to device
@@ -50,9 +61,6 @@ def train():
     criterion = nn.CrossEntropyLoss()
 
     # Continual Learning setup    
-    # Single task CL problem i.e., classification only 
-    task_labels = [0 for _ in range(17)]
-    
     # Create the class-incremental CL scenario
     train_ds, val_ds, test_ds = get_datasets()
     # NOTE: This is what the ViTImageProcessor would apply
@@ -73,7 +81,7 @@ def train():
     scenario = nc_benchmark(
         train_ds,
         val_ds,
-        n_experiences=3,
+        n_experiences=1,
         train_transform=train_transform,
         eval_transform=eval_transform,
         task_labels=False
@@ -98,7 +106,7 @@ def train():
     replay_plugin = ReplayPlugin(mem_size=100)
     ewc_plugin = EWCPlugin(ewc_lambda=1e-3)
 
-    cl_strategy = SupervisedTemplate(
+    cl_strategy = HFSupervised(
         model=model, 
         optimizer=optimizer,
         criterion=criterion,
