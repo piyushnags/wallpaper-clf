@@ -81,7 +81,7 @@ def train():
     scenario = nc_benchmark(
         train_ds,
         val_ds,
-        n_experiences=1,
+        n_experiences=17,
         train_transform=train_transform,
         eval_transform=eval_transform,
         task_labels=False
