@@ -35,8 +35,7 @@ class HFSupervised(SupervisedTemplate):
         and task labels (t) in a list containing 3 torch 
         tensors
         '''
-        for item in self.mbatch:
-            item = item.to(self.device)
+        self.mbatch = [ item.to(self.device) for item in self.mbatch ]
     
 
     def criterion(self):
