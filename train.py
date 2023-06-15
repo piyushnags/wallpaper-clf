@@ -12,12 +12,13 @@ from avalanche.evaluation.metrics import (
     loss_metrics, timing_metrics, 
     confusion_matrix_metrics
 )
-from avalanche.training.plugins import EvaluationPlugin, ReplayPlugin, EWCPlugin
+from avalanche.training.plugins import EvaluationPlugin, ReplayPlugin
 from avalanche.logging import InteractiveLogger, TextLogger
 
 # Project Imports
 from utils import get_datasets
 from strategies import HFSupervised
+from plugins import HFEWCPlugin
 
 
 
@@ -104,7 +105,7 @@ def train():
 
     # Initialize the CL strategy
     replay_plugin = ReplayPlugin(mem_size=100)
-    ewc_plugin = EWCPlugin(ewc_lambda=1e-3)
+    ewc_plugin = HFEWCPlugin(ewc_lambda=1e-3)
 
     cl_strategy = HFSupervised(
         model=model, 
