@@ -53,6 +53,11 @@ def train():
         ignore_mismatched_sizes=True,
     )
 
+    # Freeze ViT backbone
+    for name, param in model.named_parameters():
+        if 'encoder' in name:
+            param.requires_grad = False
+
     # Move model to device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
