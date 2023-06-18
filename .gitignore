@@ -1,5 +1,8 @@
 # Project-Specific
 data/
+data.zip
+logging.txt
+filelists/
 
 # MAC OS
 *.DS_Store
