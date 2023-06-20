@@ -5,6 +5,7 @@ from typing import Any
 import torch
 import torch.nn as nn
 from torch import Tensor
+from torch.optim.lr_scheduler import StepLR
 import torchvision.transforms as T
 from transformers import ViTForImageClassification
 
@@ -15,7 +16,7 @@ from avalanche.evaluation.metrics import (
     loss_metrics, timing_metrics, 
     confusion_matrix_metrics
 )
-from avalanche.training.plugins import EvaluationPlugin, ReplayPlugin
+from avalanche.training.plugins import EvaluationPlugin, ReplayPlugin, LRSchedulerPlugin
 from avalanche.logging import InteractiveLogger, TextLogger
 
 # Project Imports
@@ -44,9 +45,17 @@ def train(args: Any):
     device = get_device(args.device)
     model.to(device)
 
-    # Optimizer and Loss
+    # Optimizer, Scheduler, and Loss
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.wd)
     criterion = nn.CrossEntropyLoss()
+
+    scheduler = None
+    if args.use_scheduler:
+        scheduler = StepLR(
+            optimizer=optimizer, 
+            step_size=args.step_size,
+            gamma=args.gamma
+        )
 
     # Continual Learning setup    
     # Create the class-incremental CL scenario
@@ -93,6 +102,12 @@ def train(args: Any):
     # Initialize the CL strategy
     replay_plugin = ReplayPlugin(mem_size=args.replay_buf_size)
     ewc_plugin = HFEWCPlugin(ewc_lambda=args.ewc_lambda)
+    
+    plugins = [replay_plugin, ewc_plugin]
+    if scheduler is not None:
+        scheduler_plugin = LRSchedulerPlugin(scheduler=scheduler)
+        plugins.append( scheduler_plugin )
+    
 
     cl_strategy = HFSupervised(
         model=model, 
@@ -102,7 +117,7 @@ def train(args: Any):
         train_epochs=args.num_epochs,
         eval_mb_size=args.batch_size,
         evaluator=eval_plugin,
-        plugins=[replay_plugin, ewc_plugin],
+        plugins=plugins,
         device=device
     )
 

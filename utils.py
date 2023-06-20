@@ -70,9 +70,12 @@ def get_model(arch: str = 'vit'):
 
         # Freeze ViT backbone
         for name, param in model.named_parameters():
-            if 'encoder' in name:
+            if 'classifier' not in name:
                 param.requires_grad = False
         
+        num_trainable = sum([ p.numel() for p in model.parameters() if p.requires_grad ])
+        print(f'Number of trainable parameters in the model: {num_trainable}')
+
         return model
     
     else:
@@ -121,6 +124,11 @@ def parse() -> Any:
     parser.add_argument('--lr', type=float, default=1e-3, help='Learning rate for training')
     parser.add_argument('--wd', type=float, default=1e-5, help='Weight decay for AdamW Optimizer')
     parser.add_argument('--num_epochs', type=int, default=10, help='Number of epochs for training per experience')
+
+    # Optimization specific
+    parser.add_argument('--use_scheduler', action='store_true', help='Use StepLR scheduler for each training epoch')
+    parser.add_argument('--step_size', type=int, default=3, help='step size for StepLR scheduler')
+    parser.add_argument('--gamma', type=float, default=0.93, help='Decay for StepLR scheduler')
 
     # CL training params
     parser.add_argument('--ewc_lambda', type=float, default=1e-3, help='Lambda to be used when using EWC strategy')
