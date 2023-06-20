@@ -132,6 +132,8 @@ def parse() -> Any:
 
     # CL training params
     parser.add_argument('--ewc_lambda', type=float, default=1e-3, help='Lambda to be used when using EWC strategy')
+    parser.add_argument('--ewc_mode', type=str, default='online', help='EWC online uses less memory on GPU by aggregating the Fisher information matrices. Use offline at the expense of more memory consumption')
+    parser.add_argument('--ewc_decay', type=float, default=0.9, help='EWC decay factor for updating online Fisher information matrices')
     parser.add_argument('--replay_buf_size', type=int, default=200, help='Size of Replay buffer when using Replay strategy')
 
     args = parser.parse_args()
