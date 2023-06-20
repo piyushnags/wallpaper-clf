@@ -86,6 +86,7 @@ def train(args: Any):
         n_experiences=len(per_exp_classes),
         train_transform=train_transform,
         eval_transform=eval_transform,
+        per_exp_classes=per_exp_classes,
         task_labels=False
     )
 
