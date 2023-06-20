@@ -75,10 +75,15 @@ def train(args: Any):
         T.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
     ])
 
+    # TODO: Integrate per exp classes with argparse
+    per_exp_classes = {
+        0:4, 1:3, 2:3, 3:3, 4:4
+    }
+
     scenario = nc_benchmark(
         train_ds,
         val_ds,
-        n_experiences=17,
+        n_experiences=len(per_exp_classes),
         train_transform=train_transform,
         eval_transform=eval_transform,
         task_labels=False
@@ -101,7 +106,11 @@ def train(args: Any):
 
     # Initialize the CL strategy
     replay_plugin = ReplayPlugin(mem_size=args.replay_buf_size)
-    ewc_plugin = HFEWCPlugin(ewc_lambda=args.ewc_lambda)
+    ewc_plugin = HFEWCPlugin(
+        ewc_lambda=args.ewc_lambda, 
+        mode=args.ewc_mode, 
+        decay_factor=args.ewc_decay
+    )
     
     plugins = [replay_plugin, ewc_plugin]
     if scheduler is not None:
