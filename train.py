@@ -131,6 +131,9 @@ def train(args: Any):
         results.append( cl_strategy.eval(scenario.test_stream) )
     
     print(results)
+    
+    model_save_dir = f'./models_{args.ewc_lambda}/'
+    model.save_pretrained(model_save_dir)
 
 
 
