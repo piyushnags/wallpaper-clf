@@ -87,7 +87,8 @@ def train(args: Any):
         train_transform=train_transform,
         eval_transform=eval_transform,
         per_exp_classes=per_exp_classes,
-        task_labels=False
+        task_labels=False,
+        seed=1234
     )
 
     # Evaluator plugin
