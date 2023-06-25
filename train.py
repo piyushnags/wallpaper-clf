@@ -16,7 +16,7 @@ from avalanche.evaluation.metrics import (
     loss_metrics, timing_metrics, 
     confusion_matrix_metrics
 )
-from avalanche.training.plugins import EvaluationPlugin, ReplayPlugin, LRSchedulerPlugin
+from avalanche.training.plugins import EvaluationPlugin, ReplayPlugin, LRSchedulerPlugin, EarlyStoppingPlugin
 from avalanche.logging import InteractiveLogger, TextLogger
 
 # Project Imports
@@ -113,8 +113,16 @@ def train(args: Any):
         mode=args.ewc_mode, 
         decay_factor=args.ewc_decay
     )
+    early_stop_plugin = EarlyStoppingPlugin(
+        patience=args.patience,
+        val_stream_name='test_stream',
+        metric_name='Top1_Acc_Stream',
+        mode='max',
+        peval_mode='epoch',
+        margin=args.early_stop_margin
+    )
     
-    plugins = [replay_plugin, ewc_plugin]
+    plugins = [replay_plugin, ewc_plugin, early_stop_plugin]
     if scheduler is not None:
         scheduler_plugin = LRSchedulerPlugin(scheduler=scheduler)
         plugins.append( scheduler_plugin )

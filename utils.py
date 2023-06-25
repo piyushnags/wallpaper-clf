@@ -136,6 +136,10 @@ def parse() -> Any:
     parser.add_argument('--ewc_decay', type=float, default=0.9, help='EWC decay factor for updating online Fisher information matrices')
     parser.add_argument('--replay_buf_size', type=int, default=200, help='Size of Replay buffer when using Replay strategy')
 
+    # Early stop plugin params
+    parser.add_argument('--patience', type=int, default=1, help='Patience for Avalanche EarlyStopping Plugin')
+    parser.add_argument('--early_stop_margin', type=float, default=1e-2, help='Margin for early stop')
+
     args = parser.parse_args()
     return args
 
