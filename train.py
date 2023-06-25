@@ -16,8 +16,11 @@ from avalanche.evaluation.metrics import (
     loss_metrics, timing_metrics, 
     confusion_matrix_metrics
 )
-from avalanche.training.plugins import EvaluationPlugin, ReplayPlugin, LRSchedulerPlugin, EarlyStoppingPlugin
-from avalanche.logging import InteractiveLogger, TextLogger
+from avalanche.training.plugins import (
+    EvaluationPlugin, ReplayPlugin, 
+    LRSchedulerPlugin, EarlyStoppingPlugin
+)
+from avalanche.logging import InteractiveLogger, TextLogger, TensorboardLogger
 
 # Project Imports
 from utils import get_datasets, get_model, get_device, parse
@@ -94,7 +97,8 @@ def train(args: Any):
     # Evaluator plugin
     interactive_logger = InteractiveLogger()
     text_logger = TextLogger(open('logfile.txt', 'a'))
-    loggers = [interactive_logger, text_logger]
+    tensorboard_logger = TensorboardLogger()
+    loggers = [interactive_logger, text_logger, tensorboard_logger]
 
     eval_plugin = EvaluationPlugin(
         accuracy_metrics(minibatch=True, epoch=True, experience=True, stream=True),
@@ -143,11 +147,11 @@ def train(args: Any):
 
     # Training loop
     results = []
-    for experience in scenario.train_stream:
-        print('Start of experience: ', experience.current_experience)
-        print('Current classes: ', experience.classes_in_this_experience)
+    for train_experience, test_experience in zip(scenario.train_stream, scenario.test_stream):
+        print('Start of experience: ', train_experience.current_experience)
+        print('Current classes: ', train_experience.classes_in_this_experience)
 
-        cl_strategy.train(experience)
+        cl_strategy.train(train_experience, eval_streams=[test_experience])
         results.append( cl_strategy.eval(scenario.test_stream) )
     
     print(results)
