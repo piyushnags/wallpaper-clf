@@ -137,7 +137,8 @@ def train(args: Any):
         eval_mb_size=args.batch_size,
         evaluator=eval_plugin,
         plugins=plugins,
-        device=device
+        device=device,
+        eval_every=args.patience
     )
 
     # Training loop
