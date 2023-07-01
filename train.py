@@ -126,10 +126,13 @@ def train(args: Any):
         margin=args.early_stop_margin
     )
     
-    plugins = [replay_plugin, ewc_plugin, early_stop_plugin]
+    plugins = [replay_plugin, ewc_plugin]
     if scheduler is not None:
         scheduler_plugin = LRSchedulerPlugin(scheduler=scheduler)
         plugins.append( scheduler_plugin )
+    
+    if not args.no_early_stop:
+        plugins.append( early_stop_plugin )
     
 
     cl_strategy = HFSupervised(

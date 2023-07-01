@@ -139,6 +139,7 @@ def parse() -> Any:
     # Early stop plugin params
     parser.add_argument('--patience', type=int, default=1, help='Patience for Avalanche EarlyStopping Plugin')
     parser.add_argument('--early_stop_margin', type=float, default=1e-2, help='Margin for early stop')
+    parser.add_argument('--no_early_stop', action='store_true', help='Disables early stop during training, useful for debugging')
 
     args = parser.parse_args()
     return args
